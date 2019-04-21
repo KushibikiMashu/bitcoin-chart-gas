@@ -1,18 +1,31 @@
+const BITCOIN_CHART = ''
+
+function sheet() {
+    const bitcoinChartSpreadsheet = new BitcoinChartSpreadsheet(BITCOIN_CHART);
+    //  {bitflyer={datetime=2019-04-21 19:26:17, buy=591489}, coincheck={datetime=2019-04-21 19:26:17, buy=591785}, zaif={datetime=2019-04-21 19:26:17, buy=591760}}
+    bitcoinChartSpreadsheet.save();
+
+}
+
 class BitcoinChartSpreadsheet {
     _id: string = 'hash';
     _spreadsheet: GoogleAppsScript.Spreadsheet.Spreadsheet;
+    _bitflyerSheet: GoogleAppsScript.Spreadsheet.Sheet;
     _zaifSheet: GoogleAppsScript.Spreadsheet.Sheet;
+    _coincheckSheet: GoogleAppsScript.Spreadsheet.Sheet;
 
-    constructor(BITCOIN_EXCHANGES: string) {
-        this._id = BITCOIN_EXCHANGES
+    constructor(BITCOIN_CHART: string) {
+        this._id = BITCOIN_CHART
         this._spreadsheet = SpreadsheetApp.openById(this._id);
         this._zaifSheet = this._spreadsheet.getSheetByName('zaif')
     }
 
-    save({zaif, bitflyer, coincheck}) {
+    save({bitflyer, zaif, coincheck}) {
         zaif.sheet = this._zaifSheet;
+        bitflyer.sheet = this._bitflyerSheet;
+        coincheck.sheet = this._coincheckSheet;
 
-        this.addRow(zaif)
+        [zaif,bitflyer, coincheck].map(n => this.addRow(n))
     }
 
     addRow(zaif) {
@@ -31,44 +44,12 @@ class BitcoinChartSpreadsheet {
 
 }
 
-function getTarget(html) {
-    var target = '';
-    const tags = ['<li class="mleft10">', '</li>'];
-    const item = /<li class="mleft10">.*?<\/li>/;
-    const regexp = new RegExp(item);
-    const length = Object.keys(html).length;
-
-    for (var i = 0; i < length; ++i) {
-        var itemWithTag = html[i].match(regexp);
-        var title = deleteTags(itemWithTag[0], tags);
-        if (title === '乖離率(25日)') {
-            target = html[i];
-        }
-    }
-    return target;
-}
-
-function getRate() {
-    const res = request(BITCOIN_INFO_URL);
-    const items = getItems(res);
-    const target = getTarget(items);
-    return getNumber(target);
-}
-
 function getNikkeiKairiritsuSheet() {
-    return SpreadsheetApp.openById(BITCOIN_EXCHANGES).getSheetByName('日経乖離率');
+    return SpreadsheetApp.openById(BITCOIN_CHART).getSheetByName('日経乖離率');
 }
 
 function getTitles(sheet) {
     return sheet.getRange(1, 1, 1, 4).getValues();
-}
-
-function getToday() {
-    const now = new Date();
-    const year = now.getYear();
-    const month = now.getMonth() + 1;
-    const date = now.getDate();
-    return [year, month, date];
 }
 
 function setDate(sheet) {
@@ -89,30 +70,8 @@ function setRaw(sheet) {
     sheet.getRange(lastRow + 1, 1, 1, 4).setValues(values);
 }
 
-function isWeekend(today) {
-    const day = today.getDay();
-    return (day === 6) || (day === 0);
-}
-
-function isHoliday(today) {
-    const calendars = CalendarApp.getCalendarsByName('日本の祝日');
-    const count = calendars[0].getEventsForDay(today).length;
-    return count !== 0;
-}
-
 function getRecentRates(sheet) {
     const lastRow = sheet.getLastRow();
     const values = sheet.getRange(lastRow - 7, 2, 8, 3).getValues();
     return values;
-}
-
-function getBody(sheet) {
-    var body = '今日の乖離率をお知らせします📈' + "\r\n" + '(日経平均25日移動平均線)' + "\r\n" + "\r\n";
-    const rates = getRecentRates(sheet);
-    const reversed = rates.reverse();
-    for (var row in reversed) {
-        var percentage = (rates[row][2] * 100).toString() + '％';
-        body += rates[row][0] + '/' + rates[row][1] + ' : ' + percentage + "\r\n";
-    }
-    return body;
 }
