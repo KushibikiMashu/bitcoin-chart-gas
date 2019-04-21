@@ -20,7 +20,7 @@ class BitcoinChartSpreadsheet {
     _zaifSheet: GoogleAppsScript.Spreadsheet.Sheet;
     _coincheckSheet: GoogleAppsScript.Spreadsheet.Sheet;
 
-    constructor(BITCOIN_CHART_SHEET_ID: string) {
+    constructor() {
         this._id = BITCOIN_CHART_SHEET_ID;
         this._spreadsheet = SpreadsheetApp.openById(this._id);
         this._bitflyerSheet = this._spreadsheet.getSheetByName(ExchangeName.Bitflyer)
