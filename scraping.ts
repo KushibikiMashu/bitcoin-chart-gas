@@ -14,30 +14,26 @@ function main() {
     const html = request(BITCOIN_INFO_URL);
     const bitcoinPriceScraping = new BitcoinPriceScraping(html);
     const exchanges = bitcoinPriceScraping.getExchangesData();
-    const bitcoinChartSpreadsheet = new BitcoinChartSpreadsheet(BITCOIN_EXCHANGES);
-    bitcoinChartSpreadsheet.save(...exchanges);
+    // Logger.log(exchanges)
+    //  {bitflyer={datetime=2019-04-21 19:26:17, buy=591489}, coincheck={datetime=2019-04-21 19:26:17, buy=591785}, zaif={datetime=2019-04-21 19:26:17, buy=591760}}
+
+    // const bitcoinChartSpreadsheet = new BitcoinChartSpreadsheet(BITCOIN_EXCHANGES);
+    // bitcoinChartSpreadsheet.save(...exchanges);
 }
 
 class BitcoinPriceScraping {
     _html: string;
     _datetime: string;
+    _chars: Array<string> = [',', '円']
+    _tags: Array<string> = ['<td style="color:black">', '<td style="color:red">', '<td style="color:deepskyblue">', '</td>']
 
     constructor(html: string) {
         this._html = html;
-        this._datetime = (new Date()).toString();
+        this._datetime = Utilities.formatDate(new Date(), 'Asia/Tokyo', 'yyyy-MM-dd HH:mm:ss');
     }
 
-    allBuyPrice(): Array<string> {
-        const regexp = /<td style="color:.*?">.*?円<\/td>/g;
-        const pricesRegexp = new RegExp(regexp);
-        const prices = this._html.match(pricesRegexp);
-        // htmlタグを削除
-        return prices;
-    }
-
-    exchangesData() {
+    getExchangesData() {
         const buyPrices = this.allBuyPrice();
-
         return {
             coincheck: this.exchangeData(2, buyPrices),
             zaif: this.exchangeData(4, buyPrices),
@@ -45,7 +41,20 @@ class BitcoinPriceScraping {
         }
     }
 
-    exchangeData(buyKey, buyPrices) {
+    allBuyPrice(): Array<string> {
+        const pricesRegexp = new RegExp(/<td style="color:.*?">.*?円<\/td>/g);
+        const pricesWithTags = this._html.match(pricesRegexp);
+        return pricesWithTags.map(p => BitcoinPriceScraping.deleteTarget(p, [...this._tags, ...this._chars]))
+    }
+
+    static deleteTarget(string: string, target: Array<string>):string {
+        for (let i = 0; i < target.length; ++i) {
+            string = string.replace(target[i], '');
+        }
+        return string;
+    }
+
+    exchangeData(buyKey:number, buyPrices:Array<string>): {[key :string]:string } {
         return {
             buy: buyPrices[buyKey],
             datetime: this._datetime,
@@ -111,14 +120,6 @@ function getTarget(html) {
         }
     }
     return target;
-}
-
-function deleteTags(string, tags) {
-    const length = tags.length;
-    for (var i = 0; i < length; ++i) {
-        string = string.replace(tags[i], '');
-    }
-    return string;
 }
 
 function getRate() {
