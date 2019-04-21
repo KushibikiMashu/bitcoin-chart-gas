@@ -1,4 +1,5 @@
-const BITCOIN_CHART_SHEET_ID = PropertiesService.getScriptProperties().getProperty('BITCOIN_CHART_SHEET_ID_SHEET_ID');
+const properties = PropertiesService.getScriptProperties()
+const BITCOIN_CHART_SHEET_ID = properties.getProperty('BITCOIN_CHART_SHEET_ID')
 
 enum ExchangeName {
     Bitflyer = 'bitflyer',
@@ -13,13 +14,14 @@ type Exchange = {
 }
 
 class BitcoinChartSpreadsheet {
-    _id: string = BITCOIN_CHART_SHEET_ID;
+    _id: string;
     _spreadsheet: GoogleAppsScript.Spreadsheet.Spreadsheet;
     _bitflyerSheet: GoogleAppsScript.Spreadsheet.Sheet;
     _zaifSheet: GoogleAppsScript.Spreadsheet.Sheet;
     _coincheckSheet: GoogleAppsScript.Spreadsheet.Sheet;
 
-    constructor() {
+    constructor(BITCOIN_CHART_SHEET_ID: string) {
+        this._id = BITCOIN_CHART_SHEET_ID;
         this._spreadsheet = SpreadsheetApp.openById(this._id);
         this._bitflyerSheet = this._spreadsheet.getSheetByName(ExchangeName.Bitflyer)
         this._zaifSheet = this._spreadsheet.getSheetByName(ExchangeName.Zaif)
@@ -36,9 +38,7 @@ class BitcoinChartSpreadsheet {
     static addRow(exchange: Exchange): void {
         const lastRow = exchange.sheet.getLastRow();
         const data = [[lastRow, exchange.buy, exchange.datetime]];
-        Logger.log(data);
-        // 最終行を取得(関数で外出し)
-        // exchange.sheet.getRange(1, 1).setValues(data)
+        exchange.sheet.getRange(lastRow + 1, 1, 1, 3).setValues(data);
     }
 
     /**
@@ -51,32 +51,4 @@ class BitcoinChartSpreadsheet {
      */
     getMinAndMaxOfYesterday() {
     }
-}
-
-function getTitles(sheet) {
-    return sheet.getRange(1, 1, 1, 4).getValues();
-}
-
-function setDate(sheet) {
-    const lastRow = sheet.getLastRow();
-    const lastColumn = sheet.getLastColumn();
-    const today = getToday();
-    sheet.getRange(lastRow + 1, 1, 1, 3).setValues(today);
-}
-
-function setRaw(sheet) {
-    const today = getToday();
-    const rate = getRate();
-    const values = [];
-    values.push(today);
-    values[0].push(rate);
-
-    const lastRow = sheet.getLastRow();
-    sheet.getRange(lastRow + 1, 1, 1, 4).setValues(values);
-}
-
-function getRecentRates(sheet) {
-    const lastRow = sheet.getLastRow();
-    const values = sheet.getRange(lastRow - 7, 2, 8, 3).getValues();
-    return values;
 }
