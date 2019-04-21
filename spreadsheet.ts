@@ -1,51 +1,59 @@
 const BITCOIN_CHART = ''
+const BITFLYER= 'bitflyer'
+const ZAIF = 'zaif'
+const COINCHECK = 'coincheck'
 
 function sheet() {
-    const bitcoinChartSpreadsheet = new BitcoinChartSpreadsheet(BITCOIN_CHART);
+    const bitcoinChartSpreadsheet = new BitcoinChartSpreadsheet();
     //  {bitflyer={datetime=2019-04-21 19:26:17, buy=591489}, coincheck={datetime=2019-04-21 19:26:17, buy=591785}, zaif={datetime=2019-04-21 19:26:17, buy=591760}}
-    bitcoinChartSpreadsheet.save();
+    const exchanges = {zaif: [], bitflyer: [], coincheck: []}
+    bitcoinChartSpreadsheet.save(exchanges);
+}
 
+type Exchange = {
+    sheet: GoogleAppsScript.Spreadsheet.Sheet,
+    buy: string,
+    datetime: string,
 }
 
 class BitcoinChartSpreadsheet {
-    _id: string = 'hash';
+    _id: string = BITCOIN_CHART;
     _spreadsheet: GoogleAppsScript.Spreadsheet.Spreadsheet;
     _bitflyerSheet: GoogleAppsScript.Spreadsheet.Sheet;
     _zaifSheet: GoogleAppsScript.Spreadsheet.Sheet;
     _coincheckSheet: GoogleAppsScript.Spreadsheet.Sheet;
 
-    constructor(BITCOIN_CHART: string) {
-        this._id = BITCOIN_CHART
+    constructor() {
         this._spreadsheet = SpreadsheetApp.openById(this._id);
-        this._zaifSheet = this._spreadsheet.getSheetByName('zaif')
+        this._bitflyerSheet = this._spreadsheet.getSheetByName(BITFLYER)
+        this._zaifSheet = this._spreadsheet.getSheetByName(ZAIF)
+        this._coincheckSheet = this._spreadsheet.getSheetByName(COINCHECK)
     }
 
-    save({bitflyer, zaif, coincheck}) {
+    save({bitflyer, zaif, coincheck}): void {
         zaif.sheet = this._zaifSheet;
         bitflyer.sheet = this._bitflyerSheet;
         coincheck.sheet = this._coincheckSheet;
-
-        [zaif,bitflyer, coincheck].map(n => this.addRow(n))
+        [zaif, bitflyer, coincheck].map(n => BitcoinChartSpreadsheet.addRow(n))
     }
 
-    addRow(zaif) {
+    static addRow(exchange: Exchange): void {
         // 最終行を取得
-        // idを取得
-        const id = 'newID';
+        const lastRow = exchange.sheet.getLastRow();
         // データを書き込み
+        const data = [[lastRow, exchange.buy, exchange.datetime]];
         // 最終行を取得(関数で外出し)
-        zaif.sheet.spreadsheetAPI.write(id, price, datetime)
+        exchange.sheet.getRange(1, 1).setValues(data)
     }
 
-    // 取引所ごとの最大値と最小値を取得する
-    // 取引所ごとのシートに行を追加する
-    // 「取引所ごと」にループを回す
-    // 一取引所だけで考える
-
-}
-
-function getNikkeiKairiritsuSheet() {
-    return SpreadsheetApp.openById(BITCOIN_CHART).getSheetByName('日経乖離率');
+    getMinAndMaxOfYesterday(){
+        // 前日の値を全て取得する
+        // （３シート分をまとめる）
+        // 最大値と最小値を取得する
+        // 最大値と最小値の取引所の名前を取得する
+        // return
+        // （TwitterのBodyの作成はしない）
+    }
 }
 
 function getTitles(sheet) {
