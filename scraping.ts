@@ -10,36 +10,47 @@ const SHEET = getSheet('sheet_id');
 // 変数でzaif, bitflyer, coincheckが選べるようにする
 // （おそらく数字になるはず {zaif: 1, bitfyer: 4}のように）
 
-class Scraping {
-    _html: string;
+function main() {
+    const html = request(BITCOIN_INFO_URL);
+    const bitcoinPriceScraping = new BitcoinPriceScraping(html);
+    const exchanges = bitcoinPriceScraping.getExchangesData();
+    const bitcoinChartSpreadsheet = new BitcoinChartSpreadsheet(BITCOIN_EXCHANGES);
+    bitcoinChartSpreadsheet.save(...exchanges);
+}
 
-    constructor(html) {
+class BitcoinPriceScraping {
+    _html: string;
+    _datetime: string;
+
+    constructor(html: string) {
         this._html = html;
+        this._datetime = (new Date()).toString();
     }
 
     allBuyPrice(): Array<string> {
         const regexp = /<td style="color:.*?">.*?円<\/td>/g;
         const pricesRegexp = new RegExp(regexp);
-        return this._html.match(pricesRegexp);
+        const prices = this._html.match(pricesRegexp);
+        // htmlタグを削除
+        return prices;
     }
 
-    getExchanges() {
+    exchangesData() {
+        const buyPrices = this.allBuyPrice();
 
+        return {
+            coincheck: this.exchangeData(2, buyPrices),
+            zaif: this.exchangeData(4, buyPrices),
+            bitflyer: this.exchangeData(6, buyPrices),
+        }
     }
 
-    zaif() {
-        return {}
+    exchangeData(buyKey, buyPrices) {
+        return {
+            buy: buyPrices[buyKey],
+            datetime: this._datetime,
+        }
     }
-
-    bitflyer() {
-        return {}
-    }
-
-    coincheck() {
-        return {}
-    }
-
-
 }
 
 const exchanges = {
@@ -57,36 +68,25 @@ class BitcoinChartSpreadsheet {
     _spreadsheet: GoogleAppsScript.Spreadsheet.Spreadsheet;
     _zaifSheet: GoogleAppsScript.Spreadsheet.Sheet;
 
-    constructor(BITCOIN_EXCHANGES:string) {
+    constructor(BITCOIN_EXCHANGES: string) {
         this._id = BITCOIN_EXCHANGES
         this._spreadsheet = SpreadsheetApp.openById(this._id);
         this._zaifSheet = this._spreadsheet.getSheetByName('zaif')
     }
 
-    addBuyPrices(buyPrices) {
-        const {zaif} = buyPrices
-        const sheets = {
-            zaif: this._zaifSheet,
-        }
+    save({zaif, bitflyer, coincheck}) {
+        zaif.sheet = this._zaifSheet;
 
-        for (var key in Object.keys(exchanges) ){
-            this.addRow(sheets[key], exchanges.price,exchanges.datetime)
-        }
-
-        this.addRow(this._zaifSheet, zaif.price,zaif.datetime)
-
+        this.addRow(zaif)
     }
 
-    addBuyPrice({price, datetime}){
-        this.addRow(price,datetime)
-    }
-
-    addRow(sheet, price,datetime) {
+    addRow(zaif) {
         // 最終行を取得
         // idを取得
         const id = 'newID';
         // データを書き込み
-        sheet.spreadsheetAPI.write(id, price, datetime)
+        // 最終行を取得(関数で外出し)
+        zaif.sheet.spreadsheetAPI.write(id, price, datetime)
     }
 
     // 取引所ごとの最大値と最小値を取得する
@@ -94,41 +94,7 @@ class BitcoinChartSpreadsheet {
     // 「取引所ごと」にループを回す
     // 一取引所だけで考える
 
-    //
-
-
 }
-
-function main() {
-    const html = request(BITCOIN_INFO_URL);
-    const scraping = new Scraping(html);
-    const buyPrices = scraping.getBuyPrices();
-    const bitcoinChartSpreadsheet =  new BitcoinChartSpreadsheet(BITCOIN_EXCHANGES);
-
-    BitcoinChartSpreadsheet.addBuyPrices(buyPrices)
-}
-
-
-function nikkeiHeikinMain() {
-    const today = new Date();
-    if (isWeekend(today) || isHoliday(today)) {
-        return;
-    }
-
-    const sheet = getNikkeiKairiritsuSheet();
-    setRaw(sheet);
-}
-
-function postNikkeiHeikinTweet() {
-    const today = new Date();
-    if (isWeekend(today) || isHoliday(today)) {
-        return;
-    }
-
-    const sheet = getNikkeiKairiritsuSheet();
-    const body = getBody(sheet);
-}
-
 
 function getTarget(html) {
     var target = '';
