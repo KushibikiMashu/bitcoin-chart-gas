@@ -1,13 +1,9 @@
-const BITCOIN_CHART = ''
-const BITFLYER= 'bitflyer'
-const ZAIF = 'zaif'
-const COINCHECK = 'coincheck'
+const BITCOIN_CHART_SHEET_ID = PropertiesService.getScriptProperties().getProperty('BITCOIN_CHART_SHEET_ID_SHEET_ID');
 
-function sheet() {
-    const bitcoinChartSpreadsheet = new BitcoinChartSpreadsheet();
-    //  {bitflyer={datetime=2019-04-21 19:26:17, buy=591489}, coincheck={datetime=2019-04-21 19:26:17, buy=591785}, zaif={datetime=2019-04-21 19:26:17, buy=591760}}
-    const exchanges = {zaif: [], bitflyer: [], coincheck: []}
-    bitcoinChartSpreadsheet.save(exchanges);
+enum ExchangeName {
+    Bitflyer = 'bitflyer',
+    Zaif = 'zaif',
+    Coincheck = 'coincheck',
 }
 
 type Exchange = {
@@ -17,7 +13,7 @@ type Exchange = {
 }
 
 class BitcoinChartSpreadsheet {
-    _id: string = BITCOIN_CHART;
+    _id: string = BITCOIN_CHART_SHEET_ID;
     _spreadsheet: GoogleAppsScript.Spreadsheet.Spreadsheet;
     _bitflyerSheet: GoogleAppsScript.Spreadsheet.Sheet;
     _zaifSheet: GoogleAppsScript.Spreadsheet.Sheet;
@@ -25,9 +21,9 @@ class BitcoinChartSpreadsheet {
 
     constructor() {
         this._spreadsheet = SpreadsheetApp.openById(this._id);
-        this._bitflyerSheet = this._spreadsheet.getSheetByName(BITFLYER)
-        this._zaifSheet = this._spreadsheet.getSheetByName(ZAIF)
-        this._coincheckSheet = this._spreadsheet.getSheetByName(COINCHECK)
+        this._bitflyerSheet = this._spreadsheet.getSheetByName(ExchangeName.Bitflyer)
+        this._zaifSheet = this._spreadsheet.getSheetByName(ExchangeName.Zaif)
+        this._coincheckSheet = this._spreadsheet.getSheetByName(ExchangeName.Coincheck)
     }
 
     save({bitflyer, zaif, coincheck}): void {
@@ -38,21 +34,22 @@ class BitcoinChartSpreadsheet {
     }
 
     static addRow(exchange: Exchange): void {
-        // 最終行を取得
         const lastRow = exchange.sheet.getLastRow();
-        // データを書き込み
         const data = [[lastRow, exchange.buy, exchange.datetime]];
+        Logger.log(data);
         // 最終行を取得(関数で外出し)
-        exchange.sheet.getRange(1, 1).setValues(data)
+        // exchange.sheet.getRange(1, 1).setValues(data)
     }
 
-    getMinAndMaxOfYesterday(){
-        // 前日の値を全て取得する
-        // （３シート分をまとめる）
-        // 最大値と最小値を取得する
-        // 最大値と最小値の取引所の名前を取得する
-        // return
-        // （TwitterのBodyの作成はしない）
+    /**
+     * TODO
+     * 前日の値を全て取得する
+     * （３シート分をまとめる）
+     * 最大値と最小値を取得する
+     * 最大値と最小値の取引所の名前を取得する
+     * （TwitterのBodyの作成はしない）
+     */
+    getMinAndMaxOfYesterday() {
     }
 }
 
