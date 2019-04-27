@@ -30,7 +30,7 @@ class BitcoinChartModel {
         this._coincheckSheet = this._spreadsheet.getSheetByName(ExchangeName.Coincheck)
     }
 
-    save({bitflyer, zaif, coincheck}: {[key: string]: ExchangeData}): void {
+    save({bitflyer, zaif, coincheck}: { [key: string]: ExchangeData }): void {
         zaif.sheet = this._zaifSheet;
         bitflyer.sheet = this._bitflyerSheet;
         coincheck.sheet = this._coincheckSheet;
