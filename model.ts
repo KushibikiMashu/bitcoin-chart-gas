@@ -43,16 +43,19 @@ class BitcoinChartModel {
         exchange.sheet.getRange(lastRow + 1, 1, 1, 3).setValues(data);
     }
 
-    getAllSheetData(){
-        const lastRaw = this._zaifSheet.getLastRow();
-        const values =  this._zaifSheet.getSheetValues(2,1,lastRaw, 3);
-        Logger.log(values)
+    getAllSheetData() {
+        const lastRow = this._zaifSheet.getLastRow();
+        const values = this._zaifSheet.getSheetValues(2, 1, lastRow - 1, 3);
+
+        let zaif = [];
+        for (let i = 0; i < values.length; i++) {
+            zaif.push([(new Date(values[i][2])).getTime(), values[i][1]])
+        }
+
+        return zaif;
     }
 
-    getMinOfYesterday(sheetName){}
-    getMaxOfYesterday(sheetName){}
-}
-
-function test(){
-    (new BitcoinChartModel()).getAllSheetData();
+    // TODO
+    getMinOfYesterday(sheetName) {}
+    getMaxOfYesterday(sheetName) {}
 }

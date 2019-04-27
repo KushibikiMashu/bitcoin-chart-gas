@@ -1,5 +1,6 @@
 // controllerの責務がある
 function doGet() {
-    const body = JSON.stringify((new BitcoinChartService).getContent());
-    return ContentService.createTextOutput(body);
+    const data = (new BitcoinChartModel()).getAllSheetData();
+    return ContentService.createTextOutput(JSON.stringify(data, null, 2))
+        .setMimeType(ContentService.MimeType.JSON);
 }
