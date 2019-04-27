@@ -13,7 +13,8 @@ type Exchange = {
     datetime: string,
 }
 
-// 本来ならテーブル（＝シート）ごとにModelがあるのが理想
+// (注)Active Recordならテーブル（＝シート）ごとにModelがあるのが理想
+// ただ、今回はテーブルのデータが同じであるため、Active Recordパターンでクラスを作っていない
 class BitcoinChartModel {
     _id: string;
     _spreadsheet: GoogleAppsScript.Spreadsheet.Spreadsheet;
@@ -42,6 +43,16 @@ class BitcoinChartModel {
         exchange.sheet.getRange(lastRow + 1, 1, 1, 3).setValues(data);
     }
 
+    getAllSheetData(){
+        const lastRaw = this._zaifSheet.getLastRow();
+        const values =  this._zaifSheet.getSheetValues(2,1,lastRaw, 3);
+        Logger.log(values)
+    }
+
     getMinOfYesterday(sheetName){}
     getMaxOfYesterday(sheetName){}
+}
+
+function test(){
+    (new BitcoinChartModel()).getAllSheetData();
 }
