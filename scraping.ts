@@ -9,6 +9,7 @@ enum ExchangePriceOrder {
     // BitflyerSell= 7,
 }
 
+// exportする必要ありそう。spreadsheet.tsで利用する
 interface ExchangeData {
     buy: string,
     datetime: string,

@@ -13,7 +13,7 @@ type Exchange = {
     datetime: string,
 }
 
-class BitcoinChartSpreadsheet {
+class BitcoinChartModel {
     _id: string;
     _spreadsheet: GoogleAppsScript.Spreadsheet.Spreadsheet;
     _bitflyerSheet: GoogleAppsScript.Spreadsheet.Sheet;
@@ -32,7 +32,7 @@ class BitcoinChartSpreadsheet {
         zaif.sheet = this._zaifSheet;
         bitflyer.sheet = this._bitflyerSheet;
         coincheck.sheet = this._coincheckSheet;
-        [zaif, bitflyer, coincheck].map(n => BitcoinChartSpreadsheet.addRow(n))
+        [zaif, bitflyer, coincheck].map(n => BitcoinChartModel.addRow(n))
     }
 
     static addRow(exchange: Exchange): void {
@@ -51,4 +51,5 @@ class BitcoinChartSpreadsheet {
      */
     getMinAndMaxOfYesterday() {
     }
+
 }
