@@ -30,7 +30,7 @@ class BitcoinChartModel {
         this._coincheckSheet = this._spreadsheet.getSheetByName(ExchangeName.Coincheck)
     }
 
-    save({bitflyer, zaif, coincheck}): void {
+    save({bitflyer, zaif, coincheck}: {[key: string]: ExchangeData}): void {
         zaif.sheet = this._zaifSheet;
         bitflyer.sheet = this._bitflyerSheet;
         coincheck.sheet = this._coincheckSheet;
@@ -43,19 +43,27 @@ class BitcoinChartModel {
         exchange.sheet.getRange(lastRow + 1, 1, 1, 3).setValues(data);
     }
 
-    getAllSheetData() {
+    getAllSheetData(): { [key: string]: Array<Array<number>> } {
         const lastRow = this._zaifSheet.getLastRow();
-        const values = this._zaifSheet.getSheetValues(2, 1, lastRow - 1, 3);
+        const zaifValues = this._zaifSheet.getSheetValues(2, 1, lastRow - 1, 3);
+        const bitflyerValues = this._bitflyerSheet.getSheetValues(2, 1, lastRow - 1, 3);
+        const coincheckValues = this._coincheckSheet.getSheetValues(2, 1, lastRow - 1, 3);
 
-        let zaif = [];
-        for (let i = 0; i < values.length; i++) {
-            zaif.push([(new Date(values[i][2])).getTime(), values[i][1]])
-        }
+        return {
+            zaif: BitcoinChartModel.getDateAndBuyPrice(zaifValues),
+            bitflyer: BitcoinChartModel.getDateAndBuyPrice(bitflyerValues),
+            coincheck: BitcoinChartModel.getDateAndBuyPrice(coincheckValues),
+        };
+    }
 
-        return zaif;
+    static getDateAndBuyPrice(data): Array<Array<number>> {
+        return data.map(n => [(new Date(n[2])).getTime(), n[1]]);
     }
 
     // TODO
-    getMinOfYesterday(sheetName) {}
-    getMaxOfYesterday(sheetName) {}
+    getMinOfYesterday(sheetName) {
+    }
+
+    getMaxOfYesterday(sheetName) {
+    }
 }

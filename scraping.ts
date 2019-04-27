@@ -1,5 +1,3 @@
-const BITCOIN_INFO_URL = 'https://xn--eck3a9bu7cul981xhp9b.com/';
-
 enum ExchangePriceOrder {
     CoincheckBuy = 2,
     // CoincheckSell= 3,
