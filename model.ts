@@ -13,6 +13,7 @@ type Exchange = {
     datetime: string,
 }
 
+// 本来ならテーブル（＝シート）ごとにModelがあるのが理想
 class BitcoinChartModel {
     _id: string;
     _spreadsheet: GoogleAppsScript.Spreadsheet.Spreadsheet;
@@ -41,15 +42,6 @@ class BitcoinChartModel {
         exchange.sheet.getRange(lastRow + 1, 1, 1, 3).setValues(data);
     }
 
-    /**
-     * TODO
-     * 前日の値を全て取得する
-     * （３シート分をまとめる）
-     * 最大値と最小値を取得する
-     * 最大値と最小値の取引所の名前を取得する
-     * （TwitterのBodyの作成はしない）
-     */
-    getMinAndMaxOfYesterday() {
-    }
-
+    getMinOfYesterday(sheetName){}
+    getMaxOfYesterday(sheetName){}
 }
