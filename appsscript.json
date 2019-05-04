@@ -2,5 +2,10 @@
   "timeZone": "Asia/Tokyo",
   "dependencies": {
   },
-  "exceptionLogging": "STACKDRIVER"
+  "exceptionLogging": "STACKDRIVER",
+  "oauthScopes": [
+    "https://www.googleapis.com/auth/spreadsheets",
+    "https://www.googleapis.com/auth/script.external_request",
+    "https://www.googleapis.com/auth/script.webapp.deploy"
+  ]
 }
