@@ -9,9 +9,9 @@ enum ExchangeName {
 
 type Exchange = {
     sheet: GoogleAppsScript.Spreadsheet.Sheet,
-    buy: string,
-    datetime: string,
     timestamp: string,
+    buy: string,
+    created_at: string,
 }
 
 // (注)Active Recordならテーブル（＝シート）ごとにModelがあるのが理想
@@ -40,35 +40,28 @@ class BitcoinChartModel {
 
     static addRow(exchange: Exchange): void {
         const lastRow = exchange.sheet.getLastRow();
-        const data = [[lastRow, exchange.buy, exchange.datetime, exchange.timestamp]];
+        const data = [[lastRow, exchange.timestamp, exchange.buy, exchange.created_at]];
         exchange.sheet.getRange(lastRow + 1, 1, 1, 4).setValues(data);
     }
 
-    getAllSheetData(): { [key: string]: Array<Array<number>> } {
+    getAllSheetData(): { [key: string]: Object[][] } {
         const lastRow = this._zaifSheet.getLastRow();
-        const zaifValues = this._zaifSheet.getSheetValues(2, 1, lastRow - 1, 3);
-        const bitflyerValues = this._bitflyerSheet.getSheetValues(2, 1, lastRow - 1, 3);
-        const coincheckValues = this._coincheckSheet.getSheetValues(2, 1, lastRow - 1, 3);
 
         return {
-            zaif: BitcoinChartModel.getDateAndBuyPrice(zaifValues),
-            bitflyer: BitcoinChartModel.getDateAndBuyPrice(bitflyerValues),
-            coincheck: BitcoinChartModel.getDateAndBuyPrice(coincheckValues),
+            zaif: this._zaifSheet.getSheetValues(2, 2, lastRow - 1, 2),
+            bitflyer: this._bitflyerSheet.getSheetValues(2, 2, lastRow - 1, 2),
+            coincheck: this._coincheckSheet.getSheetValues(2, 2, lastRow - 1, 2),
         };
     }
 
-    static getDateAndBuyPrice(data): Array<Array<number>> {
-        return data.map(n => [(new Date(n[2])).getTime(), n[1]]);
-    }
-
-    static getColumValues(sheet: GoogleAppsScript.Spreadsheet.Sheet, column: number): Object[][]{
+    static getColumValues(sheet: GoogleAppsScript.Spreadsheet.Sheet, column: number): Object[][] {
         const lastRow = sheet.getLastRow();
         return sheet.getSheetValues(2, column, lastRow - 1, 1);
     }
 
     static setColumValues(sheet: GoogleAppsScript.Spreadsheet.Sheet, column: number, data: string[][]): void {
         const lastRow = sheet.getLastRow();
-        sheet.getRange(2, column, lastRow -1, 1).setValues(data);
+        sheet.getRange(2, column, lastRow - 1, 1).setValues(data);
     }
 
     // TODO
