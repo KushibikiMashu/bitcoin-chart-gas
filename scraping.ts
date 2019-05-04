@@ -24,12 +24,12 @@ class BitcoinPriceScraping {
         this._timestamp = date.getTime().toString();
     }
 
-    getExchangesData(): { [key: string]: Exchange } {
+    getExchangesData(): { [key in 'zaif' | 'bitflyer' | 'coincheck']: Exchange } {
         const buyPrices = this.allBuyPrice();
         return {
-            coincheck: this.exchangeData(ExchangePriceOrder.CoincheckBuy, buyPrices),
             zaif: this.exchangeData(ExchangePriceOrder.ZaifBuy, buyPrices),
             bitflyer: this.exchangeData(ExchangePriceOrder.BitflyerBuy, buyPrices),
+            coincheck: this.exchangeData(ExchangePriceOrder.CoincheckBuy, buyPrices),
         }
     }
 

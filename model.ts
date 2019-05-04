@@ -31,7 +31,7 @@ class BitcoinChartModel {
         this._coincheckSheet = this._spreadsheet.getSheetByName(ExchangeName.Coincheck)
     }
 
-    save({bitflyer, zaif, coincheck}: { [key: string]: Exchange }): void {
+    save({bitflyer, zaif, coincheck}: { [key in 'zaif' | 'bitflyer' | 'coincheck']: Exchange }): void {
         zaif.sheet = this._zaifSheet;
         bitflyer.sheet = this._bitflyerSheet;
         coincheck.sheet = this._coincheckSheet;
@@ -44,7 +44,7 @@ class BitcoinChartModel {
         exchange.sheet.getRange(lastRow + 1, 1, 1, 4).setValues(data);
     }
 
-    getAllSheetData(): { [key: string]: Object[][] } {
+    getAllSheetData(): { [key in 'zaif' | 'bitflyer' | 'coincheck']: Object[][] } {
         const lastRow = this._zaifSheet.getLastRow();
 
         return {
