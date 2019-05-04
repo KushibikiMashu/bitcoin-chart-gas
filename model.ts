@@ -66,9 +66,9 @@ class BitcoinChartModel {
         return sheet.getSheetValues(2, column, lastRow - 1, 1);
     }
 
-    static setColumValues(sheet: GoogleAppsScript.Spreadsheet.Sheet, column: number, data: Object[][]): void {
+    static setColumValues(sheet: GoogleAppsScript.Spreadsheet.Sheet, column: number, data: string[][]): void {
         const lastRow = sheet.getLastRow();
-        sheet.getRange(2, column, lastRow, 1).setValues(data);
+        sheet.getRange(2, column, lastRow -1, 1).setValues(data);
     }
 
     // TODO
