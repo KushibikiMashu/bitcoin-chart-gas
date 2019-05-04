@@ -1,5 +1,3 @@
-import {Exchange} from './model'
-
 enum ExchangePriceOrder {
     CoincheckBuy = 2,
     // CoincheckSell= 3,
@@ -7,6 +5,12 @@ enum ExchangePriceOrder {
     // ZaifSell= 5,
     BitflyerBuy = 6,
     // BitflyerSell= 7,
+}
+
+export type Bitcoin = {
+    timestamp: string
+    buy: string
+    created_at: string
 }
 
 class BitcoinPriceScraping {
@@ -24,12 +28,12 @@ class BitcoinPriceScraping {
         this._timestamp = date.getTime().toString();
     }
 
-    getExchangesData(): { [key in 'zaif' | 'bitflyer' | 'coincheck']: Exchange } {
+    getBitcoinData(): { [key in 'zaif' | 'bitflyer' | 'coincheck']: Bitcoin } {
         const buyPrices = this.allBuyPrice();
         return {
-            zaif: this.exchangeData(ExchangePriceOrder.ZaifBuy, buyPrices),
-            bitflyer: this.exchangeData(ExchangePriceOrder.BitflyerBuy, buyPrices),
-            coincheck: this.exchangeData(ExchangePriceOrder.CoincheckBuy, buyPrices),
+            zaif: this.exchangeData(buyPrices[ExchangePriceOrder.ZaifBuy]),
+            bitflyer: this.exchangeData(buyPrices[ExchangePriceOrder.BitflyerBuy]),
+            coincheck: this.exchangeData(buyPrices[ExchangePriceOrder.CoincheckBuy]),
         }
     }
 
@@ -46,10 +50,10 @@ class BitcoinPriceScraping {
         return string;
     }
 
-    exchangeData(buyKey: number, buyPrices: string[]): Exchange {
+    exchangeData(buyPrice: string): Bitcoin {
         return {
             timestamp: this._timestamp,
-            buy: buyPrices[buyKey],
+            buy: buyPrice,
             created_at: this._created_at,
         }
     }

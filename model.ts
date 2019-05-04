@@ -1,3 +1,5 @@
+import {Bitcoin} from './scraping'
+
 const properties = PropertiesService.getScriptProperties()
 const BITCOIN_CHART_SHEET_ID = properties.getProperty('BITCOIN_CHART_SHEET_ID')
 
@@ -8,10 +10,8 @@ enum ExchangeName {
 }
 
 export type Exchange = {
-    sheet?: GoogleAppsScript.Spreadsheet.Sheet
-    timestamp: string
-    buy: string
-    created_at: string
+    sheet: GoogleAppsScript.Spreadsheet.Sheet
+    bitcoin: Bitcoin
 }
 
 // (注)Active Recordならテーブル（＝シート）ごとにModelがあるのが理想
@@ -31,16 +31,22 @@ class BitcoinChartModel {
         this._coincheckSheet = this._spreadsheet.getSheetByName(ExchangeName.Coincheck)
     }
 
-    save({bitflyer, zaif, coincheck}: { [key in 'zaif' | 'bitflyer' | 'coincheck']: Exchange }): void {
-        zaif.sheet = this._zaifSheet;
-        bitflyer.sheet = this._bitflyerSheet;
-        coincheck.sheet = this._coincheckSheet;
-        [zaif, bitflyer, coincheck].map(n => BitcoinChartModel.addRow(n))
+    save(bitcoins: { [key in 'zaif' | 'bitflyer' | 'coincheck']: Bitcoin }): void {
+        const exchanges =this.addSheet(bitcoins)
+        exchanges.map(n => BitcoinChartModel.addRow(n))
+    }
+
+    addSheet({bitflyer, zaif, coincheck}: { [key in 'zaif' | 'bitflyer' | 'coincheck']: Bitcoin }): Exchange[] {
+        return [
+            {sheet: this._zaifSheet, bitcoin: zaif},
+            {sheet: this._bitflyerSheet, bitcoin: bitflyer},
+            {sheet: this._coincheckSheet, bitcoin: coincheck},
+        ]
     }
 
     static addRow(exchange: Exchange): void {
         const lastRow = exchange.sheet.getLastRow();
-        const data = [[lastRow, exchange.timestamp, exchange.buy, exchange.created_at]];
+        const data = [[lastRow, exchange.bitcoin.timestamp, exchange.bitcoin.buy, exchange.bitcoin.created_at]];
         exchange.sheet.getRange(lastRow + 1, 1, 1, 4).setValues(data);
     }
 
