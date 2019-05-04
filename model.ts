@@ -7,11 +7,11 @@ enum ExchangeName {
     Coincheck = 'coincheck',
 }
 
-type Exchange = {
-    sheet: GoogleAppsScript.Spreadsheet.Sheet,
-    timestamp: string,
-    buy: string,
-    created_at: string,
+export type Exchange = {
+    sheet?: GoogleAppsScript.Spreadsheet.Sheet
+    timestamp: string
+    buy: string
+    created_at: string
 }
 
 // (注)Active Recordならテーブル（＝シート）ごとにModelがあるのが理想
@@ -31,7 +31,7 @@ class BitcoinChartModel {
         this._coincheckSheet = this._spreadsheet.getSheetByName(ExchangeName.Coincheck)
     }
 
-    save({bitflyer, zaif, coincheck}: { [key: string]: ExchangeData }): void {
+    save({bitflyer, zaif, coincheck}: { [key: string]: Exchange }): void {
         zaif.sheet = this._zaifSheet;
         bitflyer.sheet = this._bitflyerSheet;
         coincheck.sheet = this._coincheckSheet;

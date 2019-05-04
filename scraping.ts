@@ -1,3 +1,5 @@
+import {Exchange} from './model'
+
 enum ExchangePriceOrder {
     CoincheckBuy = 2,
     // CoincheckSell= 3,
@@ -5,12 +7,6 @@ enum ExchangePriceOrder {
     // ZaifSell= 5,
     BitflyerBuy = 6,
     // BitflyerSell= 7,
-}
-
-interface ExchangeData {
-    timestamp: string
-    buy: string
-    created_at: string
 }
 
 class BitcoinPriceScraping {
@@ -28,7 +24,7 @@ class BitcoinPriceScraping {
         this._timestamp = date.getTime().toString();
     }
 
-    getExchangesData(): { [key: string]: ExchangeData } {
+    getExchangesData(): { [key: string]: Exchange } {
         const buyPrices = this.allBuyPrice();
         return {
             coincheck: this.exchangeData(ExchangePriceOrder.CoincheckBuy, buyPrices),
@@ -50,7 +46,7 @@ class BitcoinPriceScraping {
         return string;
     }
 
-    exchangeData(buyKey: number, buyPrices: string[]): ExchangeData {
+    exchangeData(buyKey: number, buyPrices: string[]): Exchange {
         return {
             timestamp: this._timestamp,
             buy: buyPrices[buyKey],
