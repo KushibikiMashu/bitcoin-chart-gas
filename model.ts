@@ -11,6 +11,7 @@ type Exchange = {
     sheet: GoogleAppsScript.Spreadsheet.Sheet,
     buy: string,
     datetime: string,
+    timestamp: string,
 }
 
 // (注)Active Recordならテーブル（＝シート）ごとにModelがあるのが理想
@@ -39,8 +40,8 @@ class BitcoinChartModel {
 
     static addRow(exchange: Exchange): void {
         const lastRow = exchange.sheet.getLastRow();
-        const data = [[lastRow, exchange.buy, exchange.datetime]];
-        exchange.sheet.getRange(lastRow + 1, 1, 1, 3).setValues(data);
+        const data = [[lastRow, exchange.buy, exchange.datetime, exchange.timestamp]];
+        exchange.sheet.getRange(lastRow + 1, 1, 1, 4).setValues(data);
     }
 
     getAllSheetData(): { [key: string]: Array<Array<number>> } {
@@ -58,6 +59,16 @@ class BitcoinChartModel {
 
     static getDateAndBuyPrice(data): Array<Array<number>> {
         return data.map(n => [(new Date(n[2])).getTime(), n[1]]);
+    }
+
+    static getColumValues(sheet: GoogleAppsScript.Spreadsheet.Sheet, column: number): Object[][]{
+        const lastRow = sheet.getLastRow();
+        return sheet.getSheetValues(2, column, lastRow - 1, 1);
+    }
+
+    static setColumValues(sheet: GoogleAppsScript.Spreadsheet.Sheet, column: number, data: Object[][]): void {
+        const lastRow = sheet.getLastRow();
+        sheet.getRange(2, column, lastRow, 1).setValues(data);
     }
 
     // TODO

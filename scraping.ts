@@ -9,20 +9,24 @@ enum ExchangePriceOrder {
 
 // exportする必要ありそう。spreadsheet.tsで利用する
 interface ExchangeData {
-    buy: string,
-    datetime: string,
+    buy: string
+    datetime: string
+    timestamp: string
 }
 
 class BitcoinPriceScraping {
     _html: string;
     _datetime: string;
+    _timestamp: string;
     _chars: Array<string> = [',', '円'];
     _tags: Array<string> = ['<td style="color:black">', '<td style="color:red">', '<td style="color:deepskyblue">', '</td>'];
     _regExp: RegExp = /<td style="color:.*?">.*?円<\/td>/g;
 
     constructor(html: string) {
         this._html = html;
-        this._datetime = Utilities.formatDate(new Date(), 'Asia/Tokyo', 'yyyy-MM-dd HH:mm:ss');
+        const date = new Date();
+        this._datetime = Utilities.formatDate(date, 'Asia/Tokyo', 'yyyy-MM-dd HH:mm:ss');
+        this._timestamp = date.getTime().toString();
     }
 
     getExchangesData(): { [key: string]: ExchangeData } {
@@ -51,6 +55,7 @@ class BitcoinPriceScraping {
         return {
             buy: buyPrices[buyKey],
             datetime: this._datetime,
+            timestamp: this._timestamp,
         }
     }
 }
